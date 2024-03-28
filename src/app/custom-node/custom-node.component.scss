@@ -1,0 +1,48 @@
+.wrapper {
+    width: 27rem;
+    height: 10rem;
+    background-color: #eeeeee;
+    box-shadow: 0 0 5px 0.5px gray;
+    border-radius: 0.75rem;
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.25rem;
+    border-inline-start-width: 0.5rem;
+    border-inline-start-style: solid;
+    //pointer-events: none;
+
+    .more-info {
+        font-size: 2rem;
+        position: absolute;
+        inset-block-start: 0.75rem;
+        inset-inline-start: 1rem;
+        cursor: pointer;
+        transition: opacity;
+        transition-delay: 150ms;
+
+        &:hover {
+            opacity: 0.75;
+        }
+    }
+
+    nz-divider {
+        height: 7rem;
+        background-color: black;
+    }
+
+    > span {
+        font-size: 6rem;
+    }
+
+    .info div {
+        padding-block: 0.5rem;
+        padding-inline: 1rem;
+        text-align: right;
+
+        span {
+            font-weight: bold;
+        }
+    }
+}

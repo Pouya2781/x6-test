@@ -1,0 +1,62 @@
+<popper-content #popperContent>
+    <ul>
+        <li>sdfsdfsdf</li>
+        <li>sdfsdfsdf</li>
+        <li>sdfs</li>
+    </ul>
+</popper-content>
+<nz-badge [nzCount]="transactionCount">
+    <div
+        class="wrapper"
+        [popper]="popperContent"
+        [popperShowOnStart]="true"
+        [popperTrigger]="NgxPopperjsTriggers.hover"
+        [popperHideOnClickOutside]="true"
+        [popperHideOnScroll]="true"
+        [popperPlacement]="NgxPopperjsPlacements.LEFT"
+    >
+        <!--        <span nz-icon nzType="wallet" nzTheme="outline"></span>-->
+        <!--        <span nz-icon nzType="bank" nzTheme="outline"></span>-->
+        <span nz-icon nzType="dollar" nzTheme="outline"></span>
+        <nz-divider nzType="vertical"></nz-divider>
+        <div class="info">
+            <div>نام: {{ ownerName + ' ' + ownerFamilyName }}</div>
+            <!--            <nz-divider></nz-divider>-->
+            <div>شعبه: {{ branchName }}</div>
+            <!--            <nz-divider></nz-divider>-->
+            <div>شماره حساب: {{ accountID }}</div>
+        </div>
+    </div>
+</nz-badge>
+
+<!--<nz-badge [nzCount]="transactionCount" [nzOverflowCount]="1000">-->
+<!--    <div class="wrapper" [style.border-inline-start-color]="accountType">-->
+<!--        <span title="اطلاعات بیشتر" class="more-info" nz-icon nzType="question-circle" nzTheme="outline"></span>-->
+<!--        <ng-container [ngSwitch]="accountType">-->
+<!--            <span-->
+<!--                title="حساب جاری"-->
+<!--                *ngSwitchCase="AccountType.CURRENT"-->
+<!--                nz-icon-->
+<!--                nzType="wallet"-->
+<!--                nzTheme="outline"-->
+<!--            ></span>-->
+<!--            <span title="حساب سپرده" *ngSwitchCase="AccountType.DEPOSIT" nz-icon nzType="bank" nzTheme="outline"></span>-->
+<!--            <span-->
+<!--                title="حساب پس انداز"-->
+<!--                *ngSwitchCase="AccountType.SAVINGS"-->
+<!--                nz-icon-->
+<!--                nzType="dollar"-->
+<!--                nzTheme="outline"-->
+<!--            ></span>-->
+<!--        </ng-container>-->
+
+<!--        <nz-divider nzType="vertical"></nz-divider>-->
+<!--        <div class="info">-->
+<!--            <div><span>نام: </span>{{ ownerName + ' ' + ownerFamilyName }}</div>-->
+<!--            &lt;!&ndash;            <nz-divider></nz-divider>&ndash;&gt;-->
+<!--            <div><span>شعبه: </span>{{ branchName }}</div>-->
+<!--            &lt;!&ndash;            <nz-divider></nz-divider>&ndash;&gt;-->
+<!--            <div><span>شماره حساب: </span>{{ accountID }}</div>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</nz-badge>-->
