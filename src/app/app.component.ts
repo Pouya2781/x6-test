@@ -15,8 +15,8 @@ export class AppComponent implements AfterViewInit {
     ngAfterViewInit() {
         const graph = new Graph({
             container: document.getElementById('container') as HTMLElement,
-            width: 1000,
-            height: 600,
+            /* width: 1000,
+            height: 600, */
             background: {
                 color: '#F2F7FA',
             },
