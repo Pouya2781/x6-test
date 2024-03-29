@@ -5,6 +5,7 @@ import {AccountType, CustomNodeComponent, NodeState} from './custom-node/custom-
 import {NgxPopperjsPlacements, NgxPopperjsTriggers} from 'ngx-popperjs';
 import {Snapline} from '@antv/x6-plugin-snapline';
 import {CustomNodeService} from './services/custom-node.service';
+import {BankGraph} from './models/bank-graph';
 
 @Component({
     selector: 'app-root',
@@ -12,19 +13,19 @@ import {CustomNodeService} from './services/custom-node.service';
     styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements AfterViewInit {
-    private graph!: Graph;
+    private graph!: BankGraph;
     constructor(
         private injector: Injector,
         private customNodeService: CustomNodeService
     ) {
         this.customNodeService.nodeListener.subscribe((value) => {
-            const temp = this.graph.getNodes().find((node) => node.id === value.nodeId);
+            const targetNode = this.graph.getNode(value.nodeId);
 
-            temp?.resize(value.width, value.height);
+            targetNode?.resize(value.width, value.height);
         });
     }
     ngAfterViewInit() {
-        this.graph = new Graph({
+        this.graph = new BankGraph({
             container: document.getElementById('container') as HTMLElement,
             /* width: 1000,
             height: 600, */
@@ -46,7 +47,7 @@ export class AppComponent implements AfterViewInit {
             injector: this.injector,
         });
 
-        let node1 = this.graph.addNode({
+        let node1 = this.graph.addCustomNode({
             shape: 'custom-angular-component-node',
             id: '1',
             x: 100,
@@ -67,7 +68,7 @@ export class AppComponent implements AfterViewInit {
                 },
             },
         });
-        let node2 = this.graph.addNode({
+        let node2 = this.graph.addCustomNode({
             shape: 'custom-angular-component-node',
             id: '2',
             x: 250,
@@ -105,7 +106,4 @@ export class AppComponent implements AfterViewInit {
         node1.zIndex = 1000;
         node2.zIndex = 1000;
     }
-
-    protected readonly NgxPopperjsTriggers = NgxPopperjsTriggers;
-    protected readonly NgxPopperjsPlacements = NgxPopperjsPlacements;
 }
