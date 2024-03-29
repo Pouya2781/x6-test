@@ -1,4 +1,5 @@
 <div
+    (contextmenu)="contextMenu($event, menu)"
     class="all-wrapper"
     nz-popover
     [nzPopoverContent]="contentTemplate"
@@ -8,6 +9,7 @@
     nzPopoverOverlayClassName="custom-node-popover"
     (contextmenu)="showPopover()"
     (mousedown)="hidePopover($event)"
+    (mousedown)="closeMenu()"
     (nzPopoverVisibleChange)="popoverVisibilityChanged($event)"
     #templateRef
 >
@@ -98,3 +100,10 @@
         <li>Delete</li>
     </ul>
 </ng-template>
+<nz-dropdown-menu #menu="nzDropdownMenu">
+    <ul nz-menu class="context">
+        <li nz-menu-item>Select</li>
+        <li nz-menu-item>Expand</li>
+        <li nz-menu-item>Delete</li>
+    </ul>
+</nz-dropdown-menu>

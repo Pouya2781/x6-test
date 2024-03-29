@@ -1,5 +1,6 @@
 import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, Input, TemplateRef, ViewChild} from '@angular/core';
 import {CustomNodeService} from '../services/custom-node.service';
+import {NzContextMenuService, NzDropdownMenuComponent} from 'ng-zorro-antd/dropdown';
 
 export enum AccountType {
     DEPOSIT = 'سپرده',
@@ -39,7 +40,8 @@ export class CustomNodeComponent implements AfterViewInit {
 
     constructor(
         private customNodeService: CustomNodeService,
-        private changeDetector: ChangeDetectorRef
+        private changeDetector: ChangeDetectorRef,
+        private nzContextMenuService: NzContextMenuService
     ) {}
 
     ngAfterViewInit() {
@@ -85,5 +87,13 @@ export class CustomNodeComponent implements AfterViewInit {
         if (!visible) {
             this.popoverVisibility = false;
         }
+    }
+
+    contextMenu($event: MouseEvent, menu: NzDropdownMenuComponent): void {
+        this.nzContextMenuService.create($event, menu);
+    }
+
+    closeMenu(): void {
+        this.nzContextMenuService.close();
     }
 }
