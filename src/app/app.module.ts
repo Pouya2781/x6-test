@@ -16,6 +16,7 @@ import {NgxPopperjsModule} from 'ngx-popperjs';
 import {NzBadgeModule} from 'ng-zorro-antd/badge';
 import {NzIconModule} from 'ng-zorro-antd/icon';
 import {NzDividerModule} from 'ng-zorro-antd/divider';
+import {NzPopoverModule} from 'ng-zorro-antd/popover';
 
 registerLocaleData(en);
 
@@ -32,6 +33,7 @@ registerLocaleData(en);
         NzBadgeModule,
         NzIconModule,
         NzDividerModule,
+        NzPopoverModule,
     ],
     providers: [{provide: NZ_I18N, useValue: en_US}],
     bootstrap: [AppComponent],

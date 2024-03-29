@@ -1,6 +1,4 @@
-import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, Input, ViewChild} from '@angular/core';
-import {NgxPopperjsPlacements, NgxPopperjsTriggers} from 'ngx-popperjs';
-import {Element} from '@angular/compiler';
+import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, Input, TemplateRef, ViewChild} from '@angular/core';
 import {CustomNodeService} from '../services/custom-node.service';
 
 export enum AccountType {
@@ -12,6 +10,7 @@ export enum AccountType {
 export enum NodeState {
     NORMAL,
     EXPANDED,
+    TINY,
 }
 @Component({
     selector: 'app-custom-node',
@@ -31,10 +30,12 @@ export class CustomNodeComponent implements AfterViewInit {
     @Input() public cardID!: string;
     @Input() public accountID!: string;
     protected readonly AccountType = AccountType;
+    protected readonly NodeState = NodeState;
 
-    @ViewChild('templateRef') templateRef!: ElementRef;
+    @ViewChild('templateRef') templateRef!: ElementRef<HTMLDivElement>;
 
-    public nodeState: NodeState = NodeState.NORMAL;
+    public nodeState: NodeState = NodeState.TINY;
+    public popoverVisibility: boolean = false;
 
     constructor(
         private customNodeService: CustomNodeService,
@@ -60,5 +61,29 @@ export class CustomNodeComponent implements AfterViewInit {
         return 'blue';
     }
 
-    protected readonly NodeState = NodeState;
+    showPopover() {
+        // this.popoverVisibility = false;
+        // this.changeDetector.detectChanges();
+        this.popoverVisibility = true;
+        this.changeDetector.detectChanges();
+    }
+
+    hidePopover(event: MouseEvent) {
+        if (event.button == 0) {
+            this.popoverVisibility = false;
+            this.changeDetector.detectChanges();
+        }
+    }
+
+    popoverVisibilityChanged(visible: boolean) {
+        if (visible && !this.popoverVisibility) {
+            this.popoverVisibility = true;
+            this.changeDetector.detectChanges();
+            this.popoverVisibility = false;
+            this.changeDetector.detectChanges();
+        }
+        if (!visible) {
+            this.popoverVisibility = false;
+        }
+    }
 }

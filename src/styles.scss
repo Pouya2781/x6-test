@@ -2,11 +2,29 @@
 @import "node_modules/ngx-popperjs/css/theme-white.css";
 
 html {
-    font-size: 62.5%;
-
     box-sizing: border-box;
+
+    font-size: 62.5%;
 }
 
 body {
     font-family: Vazir, sans-serif;
+}
+
+.custom-node-popover {
+    .ant-popover-content {
+        margin-inline-start: -0.5rem;
+
+        .ant-popover-arrow {
+            margin-inline-start: -0.5rem;
+        }
+
+        .ant-popover-inner {
+            border-radius: 0.75rem;
+
+            .ant-popover-inner-content {
+                padding: 0;
+            }
+        }
+    }
 }

@@ -42,8 +42,6 @@ export class AppComponent implements AfterViewInit {
 
         register({
             shape: 'custom-angular-component-node',
-            width: 270,
-            height: 100,
             content: CustomNodeComponent,
             injector: this.injector,
         });
