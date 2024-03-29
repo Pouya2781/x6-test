@@ -34,7 +34,7 @@ export class CustomNodeComponent implements AfterViewInit {
 
     @ViewChild('templateRef') templateRef!: ElementRef<HTMLDivElement>;
 
-    public nodeState: NodeState = NodeState.TINY;
+    public nodeState: NodeState = NodeState.NORMAL;
     public popoverVisibility: boolean = false;
 
     constructor(
