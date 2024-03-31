@@ -185,10 +185,7 @@ export class AppComponent implements AfterViewInit {
                 transactionCount: 8,
             },
         });
-        setTimeout(() => {
-            edge1.setLabelData({accountID: '1244'});
-        }, 1000);
-
+        edge1.setLabelData({accountID: '1244'});
         node1.zIndex = 1000;
         node2.zIndex = 1000;
 

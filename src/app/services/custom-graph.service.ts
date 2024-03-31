@@ -10,6 +10,8 @@ export interface CustomEdgeMetadata extends Edge.Metadata {
 
 export class CustomEdge extends Edge<Edge.Properties> {
     componentRef!: ComponentRef<any>;
+    initialization!: Promise<any>;
+    initializationResolver!: (value: any | PromiseLike<any>) => void;
     ngArguments!: {[key: string]: any};
     labelShape!: string;
     initLabelData!: () => void;
@@ -92,15 +94,20 @@ export class CustomGraphService {
         const customEdge = Edge as CustomEdge;
         customEdge.ngArguments = metadata.ngArguments || {};
         customEdge.labelShape = metadata.labelShape;
-        customEdge.setLabelData = function (ngArguments: {[key: string]: any}) {
-            Object.entries(ngArguments).forEach((value) => {
+        customEdge.initialization = new Promise((resolve, reject) => {
+            customEdge.initializationResolver = resolve;
+        });
+        customEdge.setLabelData = async function (ngArguments: {[key: string]: any}) {
+            await this.initialization;
+            for (const value of Object.entries(ngArguments)) {
                 this.componentRef.instance[value[0]] = value[1];
-            });
+            }
         };
         customEdge.initLabelData = function () {
-            Object.entries(this.ngArguments).forEach((value) => {
+            for (const value of Object.entries(this.ngArguments)) {
                 this.componentRef.instance[value[0]] = value[1];
-            });
+            }
+            this.initializationResolver(null);
         };
         return customEdge;
     }

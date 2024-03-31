@@ -76,15 +76,18 @@
             height: 0;
             overflow: hidden;
             opacity: 0;
-            transition: all 0.5s cubic-bezier(0, 0.4, 0, 1);
+            transition:
+                opacity,
+                height,
+                0.5s cubic-bezier(0, 0.4, 0, 1);
 
             &.expand {
-              height: 144px;
-              opacity: 1;
+                height: 144px;
+                opacity: 1;
             }
 
             nz-divider {
-                height: 0.35rem;
+                //height: 0.35rem;
                 background-color: #222;
                 margin-block: 0.5rem;
             }
