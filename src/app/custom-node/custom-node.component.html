@@ -12,6 +12,7 @@
     (mousedown)="closeMenu()"
     (nzPopoverVisibleChange)="popoverVisibilityChanged($event)"
     #templateRef
+    #dynamicNodeView
 >
     <div class="tiny" *ngIf="nodeState == NodeState.TINY; else normalNodeRef">{{ accountID }}</div>
     <ng-template #normalNodeRef>

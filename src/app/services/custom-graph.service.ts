@@ -1,7 +1,11 @@
-import {ComponentRef, Injectable, Renderer2} from '@angular/core';
-import {Edge, Graph, Markup, Model, Node} from '@antv/x6';
+import {ComponentRef, ElementRef, Injectable, Injector, OnInit, Renderer2, Type} from '@angular/core';
+import {Edge, Graph, Markup, Model, Node, Timing} from '@antv/x6';
 import {ComponentType} from '@angular/cdk/portal';
 import {ComponentCreatorService} from './component-creator.service';
+import {register} from '@antv/x6-angular-shape';
+import {Content} from '@antv/x6-angular-shape/src/registry';
+import {transition} from '@angular/animations';
+import {AccountType} from '../custom-node/custom-node.component';
 
 export interface CustomEdgeMetadata extends Edge.Metadata {
     labelShape: string;
@@ -18,6 +22,17 @@ export class CustomEdge extends Edge<Edge.Properties> {
     setLabelData!: (ngArguments: {[key: string]: any}) => void;
 }
 
+export interface DynamicNodeView {
+    dynamicNodeView: ElementRef;
+}
+
+export interface InterconnectedNode {
+    nodeId: string;
+}
+
+type DynamicNodeViewComponent = DynamicNodeViewComponentRef & Content;
+type DynamicNodeViewComponentRef = InterconnectedNode & DynamicNodeView;
+
 @Injectable({
     providedIn: 'root',
 })
@@ -26,10 +41,27 @@ export class CustomGraphService {
 
     private graph!: Graph;
     private nodeMap: Map<string, Node> = new Map<string, Node>();
+    private nodeComponentMap: Map<string, InterconnectedNode> = new Map<string, InterconnectedNode>();
+    private nodeDynamicViewMap: Map<Element, string> = new Map<Element, string>();
     private edgeLabelMap: Map<string, ComponentType<any>> = new Map<string, ComponentType<any>>();
     private edgeMap: Map<string, CustomEdge> = new Map<string, CustomEdge>();
+    private resizeObserver: ResizeObserver;
 
-    constructor(private componentCreatorService: ComponentCreatorService) {}
+    constructor(
+        private componentCreatorService: ComponentCreatorService,
+        private injector: Injector
+    ) {
+        this.resizeObserver = new ResizeObserver((entries) => {
+            for (let entry of entries) {
+                const nodeId = this.nodeDynamicViewMap.get(entry.target);
+                if (!!nodeId) {
+                    const node = this.nodeMap.get(nodeId);
+
+                    if (!!node) node.resize(entry.target.clientWidth, entry.target.clientHeight);
+                }
+            }
+        });
+    }
 
     public init(graph: Graph, renderer: Renderer2) {
         this.graph = graph;
@@ -59,12 +91,32 @@ export class CustomGraphService {
         };
     }
 
+    public interConnectNode(component: InterconnectedNode) {
+        this.nodeComponentMap.set(component.nodeId, component);
+    }
+
+    public setUpDynamicResize(component: DynamicNodeViewComponentRef) {
+        this.nodeDynamicViewMap.set(component.dynamicNodeView.nativeElement, component.nodeId);
+        this.resizeObserver.observe(component.dynamicNodeView.nativeElement);
+    }
+
     public registerCustomLabel<T>(labelName: string, component: ComponentType<T>): void {
         this.edgeLabelMap.set(labelName, component);
     }
 
+    public registerCustomNode<T>(shapeName: string, component: DynamicNodeViewComponent): void {
+        register({
+            shape: shapeName,
+            content: component,
+            injector: this.injector,
+        });
+    }
+
     public addCustomNode(metadata: Node.Metadata, options?: Model.AddOptions): Node {
-        const newNode = this.graph.addNode(metadata, options);
+        const uuid = crypto.randomUUID();
+        metadata.data.ngArguments.nodeId = uuid;
+        metadata.id = uuid;
+        const newNode = this.graph.addNode(metadata);
         this.nodeMap.set(newNode.id, newNode);
         return newNode;
     }
