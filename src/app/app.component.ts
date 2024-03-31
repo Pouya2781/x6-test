@@ -1,11 +1,25 @@
-import {AfterViewInit, Component, Injector} from '@angular/core';
-import {Graph} from '@antv/x6';
+import {
+    AfterViewInit,
+    ApplicationRef,
+    ChangeDetectorRef,
+    Component,
+    ComponentFactoryResolver,
+    ElementRef,
+    Injector,
+    Renderer2,
+    ViewChild,
+    ViewContainerRef,
+} from '@angular/core';
+import {Cell, Graph, Markup, Model, Node} from '@antv/x6';
 import {register} from '@antv/x6-angular-shape';
 import {AccountType, CustomNodeComponent, NodeState} from './custom-node/custom-node.component';
-import {NgxPopperjsPlacements, NgxPopperjsTriggers} from 'ngx-popperjs';
-import {Snapline} from '@antv/x6-plugin-snapline';
 import {CustomNodeService} from './services/custom-node.service';
 import {BankGraph} from './models/bank-graph';
+import {Selection} from '@antv/x6-plugin-selection';
+import {ComponentPortal, DomPortalOutlet} from '@angular/cdk/portal';
+import {ComponentCreatorService} from './services/component-creator.service';
+import {Snapline} from '@antv/x6-plugin-snapline';
+import {CustomGraphService} from './services/custom-graph.service';
 
 @Component({
     selector: 'app-root',
@@ -14,9 +28,12 @@ import {BankGraph} from './models/bank-graph';
 })
 export class AppComponent implements AfterViewInit {
     private graph!: BankGraph;
+    @ViewChild('.copppppp') conRef!: ElementRef;
     constructor(
         private injector: Injector,
-        private customNodeService: CustomNodeService
+        private customNodeService: CustomNodeService,
+        private customGraphService: CustomGraphService,
+        private renderer: Renderer2
     ) {
         this.customNodeService.nodeListener.subscribe((value) => {
             const targetNode = this.graph.getNode(value.nodeId);
@@ -26,14 +43,24 @@ export class AppComponent implements AfterViewInit {
     }
     ngAfterViewInit() {
         this.graph = new BankGraph({
+            preventDefaultMouseDown: false,
             container: document.getElementById('container') as HTMLElement,
-            /* width: 1000,
-            height: 600, */
             background: {
                 color: '#F2F7FA',
             },
             grid: true,
         });
+        this.customGraphService.init(this.graph, this.renderer);
+
+        this.graph.use(
+            new Selection({
+                enabled: true,
+                multiple: true,
+                rubberband: true,
+                movable: true,
+                showNodeSelectionBox: true,
+            })
+        );
 
         this.graph.use(
             new Snapline({
@@ -46,7 +73,6 @@ export class AppComponent implements AfterViewInit {
             content: CustomNodeComponent,
             injector: this.injector,
         });
-
         let node1 = this.graph.addCustomNode({
             shape: 'custom-angular-component-node',
             id: '1',
@@ -92,6 +118,7 @@ export class AppComponent implements AfterViewInit {
         });
         this.graph.addEdge({
             shape: 'edge',
+            id: '1234',
             source: node1,
             target: node2,
             router: {
@@ -102,8 +129,71 @@ export class AppComponent implements AfterViewInit {
                 name: 'smooth',
                 args: {},
             },
+            defaultLabel: {
+                markup: Markup.getForeignObjectMarkup(),
+                attrs: {
+                    fo: {
+                        width: 1,
+                        height: 1,
+                        x: 0,
+                        y: 0,
+                    },
+                },
+            },
+            label: {
+                position: 0.5,
+            },
+            attrs: {
+                line: {
+                    stroke: '#ccc',
+                },
+            },
         });
+        this.customGraphService.registerCustomLabel('data-label', CustomNodeComponent);
+        const edge1 = this.customGraphService.addCustomEdge({
+            shape: 'edge',
+            source: node1,
+            target: node2,
+            router: {
+                name: 'normal',
+                args: {},
+            },
+            connector: {
+                name: 'smooth',
+                args: {},
+            },
+            labelShape: 'data-label',
+            label: {
+                position: 0.5,
+            },
+            attrs: {
+                line: {
+                    stroke: '#ccc',
+                },
+            },
+            ngArguments: {
+                nodeId: '2',
+                ownerName: 'شیرین',
+                ownerFamilyName: 'ابراهیم نژاد',
+                accountID: '6039548046',
+                branchName: 'خواجه عبدالله انصاری',
+                branchAddress: 'تهران-خیابان خواجه عبدالله انصاری-نبش کوچه ششم-پلاک 110',
+                branchTelephone: '22844370',
+                sheba: 'IR500379357299000000405',
+                cardID: '6395995000000400',
+                accountType: AccountType.CURRENT,
+                transactionCount: 8,
+            },
+        });
+        setTimeout(() => {
+            edge1.setLabelData({accountID: '1244'});
+        }, 1000);
+
         node1.zIndex = 1000;
         node2.zIndex = 1000;
+
+        this.graph.on('node:selected', (args: {cell: Cell; node: Node; options: Model.SetOptions}) => {
+            console.log(args.node.id);
+        });
     }
 }
