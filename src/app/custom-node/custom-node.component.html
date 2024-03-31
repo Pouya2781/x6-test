@@ -64,7 +64,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="detail" *ngIf="nodeState == NodeState.EXPANDED">
+                <div class="detail" [class.expand]="nodeState == NodeState.EXPANDED">
                     <nz-divider></nz-divider>
                     <div>
                         <span>:آدرس شعبه</span>

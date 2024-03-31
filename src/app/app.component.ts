@@ -58,7 +58,7 @@ export class AppComponent implements AfterViewInit {
                 multiple: true,
                 rubberband: true,
                 movable: true,
-                showNodeSelectionBox: true,
+                // showNodeSelectionBox: true,
             })
         );
 

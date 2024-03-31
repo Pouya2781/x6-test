@@ -73,6 +73,15 @@
             align-items: flex-end;
             justify-content: flex-start;
             width: 100%;
+            height: 0;
+            overflow: hidden;
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0, 0.4, 0, 1);
+
+            &.expand {
+              height: 144px;
+              opacity: 1;
+            }
 
             nz-divider {
                 height: 0.35rem;

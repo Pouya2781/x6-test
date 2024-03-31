@@ -53,8 +53,10 @@ export class CustomNodeComponent implements AfterViewInit {
         if (this.nodeState == NodeState.EXPANDED) this.nodeState = NodeState.NORMAL;
         else this.nodeState = NodeState.EXPANDED;
         this.changeDetector.detectChanges();
-        const bounding = this.templateRef.nativeElement.getBoundingClientRect();
-        this.customNodeService.notify(this.nodeId, bounding.width, bounding.height);
+        setTimeout(()=>{
+          const bounding = this.templateRef.nativeElement.getBoundingClientRect();
+          this.customNodeService.notify(this.nodeId, bounding.width, bounding.height);
+        },500)
     }
 
     getBorderColor() {
