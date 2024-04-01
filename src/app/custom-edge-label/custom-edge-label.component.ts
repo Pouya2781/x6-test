@@ -66,4 +66,6 @@ export class CustomEdgeLabelComponent {
             400
         );
     }
+
+    protected readonly Number = Number;
 }

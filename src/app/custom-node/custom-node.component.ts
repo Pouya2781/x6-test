@@ -1,4 +1,13 @@
-import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, Input, TemplateRef, ViewChild} from '@angular/core';
+import {
+    AfterViewInit,
+    ChangeDetectorRef,
+    Component,
+    ComponentRef,
+    ElementRef,
+    Input,
+    TemplateRef,
+    ViewChild,
+} from '@angular/core';
 import {CustomNodeService} from '../services/custom-node.service';
 import {NzContextMenuService, NzDropdownMenuComponent} from 'ng-zorro-antd/dropdown';
 import {CustomGraphService, DynamicNodeView, InterconnectedNode} from '../services/custom-graph.service';

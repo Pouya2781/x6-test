@@ -1,14 +1,17 @@
 import {ComponentRef, ElementRef, Injectable, Injector, OnInit, Renderer2, Type} from '@angular/core';
-import {Edge, Graph, Markup, Model, Node, Timing} from '@antv/x6';
+import {Edge, Model, Graph, Markup, Node, Timing} from '@antv/x6';
 import {ComponentType} from '@angular/cdk/portal';
 import {ComponentCreatorService} from './component-creator.service';
 import {register} from '@antv/x6-angular-shape';
 import {Content} from '@antv/x6-angular-shape/src/registry';
 import {transition} from '@angular/animations';
 import {AccountType} from '../custom-node/custom-node.component';
+import {CustomEdgeLabelComponent} from '../custom-edge-label/custom-edge-label.component';
 
 export interface CustomEdgeMetadata extends Edge.Metadata {
     labelShape: string;
+    source: Node;
+    target: Node;
     ngArguments?: {[key: string]: any};
 }
 
@@ -175,6 +178,39 @@ export class CustomGraphService {
 
     public getEdge(id: string) {
         return this.edgeMap.get(id);
+    }
+
+    public layout(
+        nodeWidth: number,
+        nodeHeight: number,
+        padding: number,
+        animated: boolean = false,
+        randomOffset: number = 0
+    ) {
+        const gridWidth = this.graph.container.clientWidth;
+        const gridHeight = this.graph.container.clientHeight;
+        const gridCellWidth = nodeWidth + 2 * padding;
+        const gridCellHeight = nodeHeight + 2 * padding;
+        const gridRowCount = Math.floor(gridWidth / gridCellWidth);
+        const gridColCount = Math.floor(gridHeight / gridCellHeight);
+        const nodes = this.graph.getNodes();
+
+        for (let i = 0; i < nodes.length; i++) {
+            const row = Math.floor(i / gridRowCount);
+            const col = i % gridRowCount;
+            const x =
+                col * gridCellWidth +
+                padding +
+                Math.floor(Math.random() * (Math.min(randomOffset, padding) * 2 + 1)) -
+                Math.min(randomOffset, padding);
+            const y =
+                row * gridCellHeight +
+                padding +
+                Math.floor(Math.random() * (Math.min(randomOffset, padding) * 2 + 1)) -
+                Math.min(randomOffset, padding);
+            if (animated) this.animateMove(nodes[i], x, y);
+            else nodes[i].setPosition(x, y);
+        }
     }
 
     public getNode(id: string) {

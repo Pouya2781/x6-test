@@ -2,7 +2,7 @@
     <div class="amount">
         <span class="icon" nz-icon nzType="dollar" nzTheme="outline" #targetIcon></span>
         <span class="label" #targetLabel>:مبلغ</span>
-        <span class="line-height value" #targetElement>{{ amount }}</span>
+        <span class="line-height value" #targetElement>{{ Number(amount).toLocaleString() }}</span>
     </div>
     <div class="more-info">
         <div>

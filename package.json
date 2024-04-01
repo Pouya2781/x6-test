@@ -18,6 +18,7 @@
     "@angular/platform-browser": "^16.2.0",
     "@angular/platform-browser-dynamic": "^16.2.0",
     "@angular/router": "^16.2.0",
+    "@antv/layout": "^0.3.25",
     "@antv/x6": "^2.18.1",
     "@antv/x6-angular-shape": "^2.0.2",
     "@antv/x6-plugin-selection": "^2.2.2",
