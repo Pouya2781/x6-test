@@ -60,10 +60,10 @@
             .label {
                 position: relative;
                 left: 5rem;
-                width: 0;
+                width: 2.25rem;
                 opacity: 0;
 
-                transition-property: width, opacity;
+                transition-property: opacity;
                 transition-duration: 500ms;
                 transition-timing-function: ease-in;
 
@@ -73,14 +73,18 @@
             .icon {
                 position: relative;
                 left: 5rem;
-                width: 0;
+                width: 2.5rem;
                 opacity: 0;
 
-                transition-property: width, opacity;
+                transition-property: opacity;
                 transition-duration: 500ms;
                 transition-timing-function: ease-in;
 
                 justify-self: flex-start;
+            }
+
+            .value {
+                margin-inline-start: 3.5rem;
             }
         }
     }
@@ -98,13 +102,11 @@
             }
 
             .label {
-                width: 2.5rem;
                 opacity: 1;
                 left: 0;
             }
 
             .icon {
-                width: 2.25rem;
                 opacity: 1;
                 left: 0;
             }
