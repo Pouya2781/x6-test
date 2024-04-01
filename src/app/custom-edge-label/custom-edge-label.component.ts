@@ -1,9 +1,9 @@
 import {ChangeDetectorRef, Component, ElementRef, Input, Renderer2, ViewChild} from '@angular/core';
 
 export enum TransactionType {
-    PAYA,
-    SATNA,
-    CART_BE_CART,
+    PAYA = 'پایا',
+    SATNA = 'ساتنا',
+    CART_BE_CART = 'کارت به کارت',
 }
 
 @Component({
@@ -55,15 +55,15 @@ export class CustomEdgeLabelComponent {
 
         this.targetElement.nativeElement.animate(
             [{transform: `translate(${deltaXTarget}px, ${deltaYTarget}px`}, {transform: `translate(0)`}],
-            500
+            400
         );
         this.targetLabel.nativeElement.animate(
             [{transform: `translate(${deltaXLabel}px, ${deltaYLabel}px`}, {transform: `translate(0)`}],
-            500
+            400
         );
         this.targetIcon.nativeElement.animate(
             [{transform: `translate(${deltaXIcon}px, ${deltaYIcon}px`}, {transform: `translate(0)`}],
-            500
+            400
         );
     }
 }
