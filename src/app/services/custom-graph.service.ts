@@ -164,6 +164,15 @@ export class CustomGraphService {
         return customEdge;
     }
 
+    public animateMove(node: Node, x: number, y: number) {
+        node.translate(x - node.position().x, y - node.position().y, {
+            transition: {
+                duration: 1000,
+                timing: Timing.easeOutCubic,
+            },
+        });
+    }
+
     public getEdge(id: string) {
         return this.edgeMap.get(id);
     }

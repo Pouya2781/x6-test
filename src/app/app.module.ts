@@ -19,11 +19,12 @@ import {NzDividerModule} from 'ng-zorro-antd/divider';
 import {NzPopoverModule} from 'ng-zorro-antd/popover';
 import {NzDropDownModule} from 'ng-zorro-antd/dropdown';
 import { DynamicComponentComponent } from './dynamic-component/dynamic-component.component';
+import { CustomEdgeLabelComponent } from './custom-edge-label/custom-edge-label.component';
 
 registerLocaleData(en);
 
 @NgModule({
-    declarations: [AppComponent, CustomNodeComponent, DynamicComponentComponent],
+    declarations: [AppComponent, CustomNodeComponent, DynamicComponentComponent, CustomEdgeLabelComponent],
     imports: [
         BrowserModule,
         AppRoutingModule,

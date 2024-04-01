@@ -20,6 +20,7 @@ import {ComponentPortal, DomPortalOutlet} from '@angular/cdk/portal';
 import {ComponentCreatorService} from './services/component-creator.service';
 import {Snapline} from '@antv/x6-plugin-snapline';
 import {CustomGraphService} from './services/custom-graph.service';
+import {CustomEdgeLabelComponent, TransactionType} from './custom-edge-label/custom-edge-label.component';
 
 @Component({
     selector: 'app-root',
@@ -189,7 +190,43 @@ export class AppComponent implements AfterViewInit {
         //     },
         // });
         this.customGraphService.registerCustomLabel('data-label', CustomNodeComponent);
-        const edge1 = this.customGraphService.addCustomEdge({
+        this.customGraphService.registerCustomLabel('transaction-label', CustomEdgeLabelComponent);
+        // const edge1 = this.customGraphService.addCustomEdge({
+        //     shape: 'edge',
+        //     source: node1,
+        //     target: node2,
+        //     router: {
+        //         name: 'normal',
+        //         args: {},
+        //     },
+        //     connector: {
+        //         name: 'smooth',
+        //         args: {},
+        //     },
+        //     labelShape: 'data-label',
+        //     label: {
+        //         position: 0.5,
+        //     },
+        //     attrs: {
+        //         line: {
+        //             stroke: '#ccc',
+        //         },
+        //     },
+        //     ngArguments: {
+        //         ownerName: 'شیرین',
+        //         ownerFamilyName: 'ابراهیم نژاد',
+        //         accountID: '6039548046',
+        //         branchName: 'خواجه عبدالله انصاری',
+        //         branchAddress: 'تهران-خیابان خواجه عبدالله انصاری-نبش کوچه ششم-پلاک 110',
+        //         branchTelephone: '22844370',
+        //         sheba: 'IR500379357299000000405',
+        //         cardID: '6395995000000400',
+        //         accountType: AccountType.CURRENT,
+        //         transactionCount: 8,
+        //     },
+        // });
+        // edge1.setLabelData({accountID: '1244'});
+        const edge2 = this.customGraphService.addCustomEdge({
             shape: 'edge',
             source: node1,
             target: node2,
@@ -201,7 +238,7 @@ export class AppComponent implements AfterViewInit {
                 name: 'smooth',
                 args: {},
             },
-            labelShape: 'data-label',
+            labelShape: 'transaction-label',
             label: {
                 position: 0.5,
             },
@@ -211,28 +248,19 @@ export class AppComponent implements AfterViewInit {
                 },
             },
             ngArguments: {
-                ownerName: 'شیرین',
-                ownerFamilyName: 'ابراهیم نژاد',
-                accountID: '6039548046',
-                branchName: 'خواجه عبدالله انصاری',
-                branchAddress: 'تهران-خیابان خواجه عبدالله انصاری-نبش کوچه ششم-پلاک 110',
-                branchTelephone: '22844370',
-                sheba: 'IR500379357299000000405',
-                cardID: '6395995000000400',
-                accountType: AccountType.CURRENT,
-                transactionCount: 8,
+                sourceAccount: '6534454617',
+                destinationAccount: '6039548046',
+                amount: '500000000',
+                date: new Date('1399/04/23'),
+                transactionID: '153348811341',
+                transactionType: TransactionType.PAYA,
             },
         });
-        edge1.setLabelData({accountID: '1244'});
         node1.zIndex = 1000;
         node2.zIndex = 1000;
+
         setTimeout(() => {
-            node2.translate(200, 200, {
-                transition: {
-                    duration: 1000,
-                    timing: Timing.easeOutCubic,
-                },
-            });
+            this.customGraphService.animateMove(node2, 500, 500);
         }, 2000);
 
         this.graph.on('node:selected', (args: {cell: Cell; node: Node; options: Model.SetOptions}) => {
