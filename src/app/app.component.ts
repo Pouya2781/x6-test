@@ -93,6 +93,29 @@ export class AppComponent implements AfterViewInit {
                 },
             },
         });
+        const targetNodes: Node<Node.Properties>[] = [];
+        for (let i = 0; i < 7; i++) {
+            targetNodes.push(
+                this.customGraphService.addCustomNode({
+                    shape: 'custom-angular-component-node',
+                    data: {
+                        //Input parameters must be placed here
+                        ngArguments: {
+                            ownerName: 'شیرین',
+                            ownerFamilyName: 'ابراهیم نژاد',
+                            accountID: '6039548046',
+                            branchName: 'خواجه عبدالله انصاری',
+                            branchAddress: 'تهران-خیابان خواجه عبدالله انصاری-نبش کوچه ششم-پلاک 110',
+                            branchTelephone: '22844370',
+                            sheba: 'IR500379357299000000405',
+                            cardID: '6395995000000400',
+                            accountType: AccountType.CURRENT,
+                            transactionCount: 8,
+                        },
+                    },
+                })
+            );
+        }
         let node2 = this.customGraphService.addCustomNode({
             shape: 'custom-angular-component-node',
             x: 250,
@@ -119,12 +142,17 @@ export class AppComponent implements AfterViewInit {
             source: node1,
             target: node2,
             router: {
-                name: 'normal',
-                args: {},
+                name: 'manhattan',
+                args: {
+                    side: 'right',
+                },
             },
             connector: {
-                name: 'smooth',
-                args: {},
+                name: 'jumpover',
+                args: {
+                    type: 'arc',
+                    size: 5,
+                },
             },
             labelShape: 'transaction-label',
             label: {
@@ -144,32 +172,11 @@ export class AppComponent implements AfterViewInit {
                 transactionType: TransactionType.PAYA,
             },
         });
-        node1.zIndex = 1000;
-        node2.zIndex = 1000;
-
-        for (let i = 0; i < 10; i++) {
-            this.customGraphService.addCustomNode({
-                shape: 'custom-angular-component-node',
-                data: {
-                    //Input parameters must be placed here
-                    ngArguments: {
-                        ownerName: 'شیرین',
-                        ownerFamilyName: 'ابراهیم نژاد',
-                        accountID: '6039548046',
-                        branchName: 'خواجه عبدالله انصاری',
-                        branchAddress: 'تهران-خیابان خواجه عبدالله انصاری-نبش کوچه ششم-پلاک 110',
-                        branchTelephone: '22844370',
-                        sheba: 'IR500379357299000000405',
-                        cardID: '6395995000000400',
-                        accountType: AccountType.CURRENT,
-                        transactionCount: 8,
-                    },
-                },
-            });
-        }
+        // node1.zIndex = 1000;
+        // node2.zIndex = 1000;
 
         setTimeout(() => {
-            this.customGraphService.layout(270, 80, 40, true, 20);
-        }, 1000);
+            this.customGraphService.layout(270, 80, 40, targetNodes, true, 20);
+        }, 5000);
     }
 }
