@@ -4,6 +4,7 @@ import {ComponentType} from '@angular/cdk/portal';
 import {ComponentCreatorService} from './component-creator.service';
 import {register} from '@antv/x6-angular-shape';
 import {Content} from '@antv/x6-angular-shape/src/registry';
+import {Layout} from '../models/layout';
 
 export interface CustomEdgeMetadata extends Edge.Metadata {
     labelShape: string;
@@ -180,272 +181,275 @@ export class CustomGraphService {
     public layout(
         nodeWidth: number,
         nodeHeight: number,
-        padding: number,
+        cellPadding: number,
         targetNodes: Node<Node.Properties>[] = this.graph.getNodes(),
         animated: boolean = false,
         randomOffset: number = 0
     ) {
-        randomOffset = Math.min(randomOffset, padding);
+        const customLayout: Layout = new Layout(this.graph, this, nodeWidth, nodeHeight, cellPadding, randomOffset);
+        customLayout.apply(targetNodes, animated);
 
-        const gridWidth = this.graph.container.clientWidth;
-        const gridHeight = this.graph.container.clientHeight;
-        const gridCellWidth = nodeWidth + 2 * padding;
-        const gridCellHeight = nodeHeight + 2 * padding;
-        const gridColCount = Math.floor(gridWidth / gridCellWidth);
-        const gridRowCount = Math.floor(gridHeight / gridCellHeight);
-        const gridCellCount = gridColCount * gridRowCount;
-
-        const nodeGridCellOccupation: Array<[Node<Node.Properties>, number]> = [];
-        const gridCells: Array<Array<Array<Node<Node.Properties>>>> = Array(gridRowCount);
-        for (let i = 0; i < gridRowCount; i++) {
-            gridCells[i] = Array(gridColCount);
-
-            for (let j = 0; j < gridColCount; j++) {
-                gridCells[i][j] = [];
-            }
-        }
-
-        const allNodes = this.graph.getNodes();
-        const staticNodes = allNodes.filter((node) => !targetNodes.includes(node));
-
-        let occupiedCellCount = 0;
-        for (let node of staticNodes) {
-            const topLeft = {
-                x: node.getPosition().x,
-                y: node.getPosition().y,
-            };
-            const topRight = {
-                x: node.getPosition().x + node.size().width,
-                y: node.getPosition().y,
-            };
-            const bottomLeft = {
-                x: node.getPosition().x,
-                y: node.getPosition().y + node.size().height,
-            };
-            const bottomRight = {
-                x: node.getPosition().x + node.size().width,
-                y: node.getPosition().y + node.size().height,
-            };
-
-            const cellTopLeft = {
-                col: clamp(Math.floor(topLeft.x / gridCellWidth), 0, gridColCount - 1),
-                row: clamp(Math.floor(topLeft.y / gridCellHeight), 0, gridRowCount - 1),
-            };
-            const cellTopRight = {
-                col: clamp(Math.floor(topRight.x / gridCellWidth), 0, gridColCount - 1),
-                row: clamp(Math.floor(topRight.y / gridCellHeight), 0, gridRowCount - 1),
-            };
-            const cellBottomLeft = {
-                col: clamp(Math.floor(bottomLeft.x / gridCellWidth), 0, gridColCount - 1),
-                row: clamp(Math.floor(bottomLeft.y / gridCellHeight), 0, gridRowCount - 1),
-            };
-            const cellBottomRight = {
-                col: clamp(Math.floor(bottomRight.x / gridCellWidth), 0, gridColCount - 1),
-                row: clamp(Math.floor(bottomRight.y / gridCellHeight), 0, gridRowCount - 1),
-            };
-
-            const uniqueCells: {row: number; col: number}[] = [];
-            [cellTopLeft, cellTopRight, cellBottomLeft, cellBottomRight].forEach((cell) => {
-                if (!uniqueCells.find((c) => cell.col == c.col && cell.row == c.row)) {
-                    uniqueCells.push(cell);
-                }
-            });
-
-            nodeGridCellOccupation.push([node, uniqueCells.length]);
-            uniqueCells.forEach((uc) => {
-                if (gridCells[uc.row][uc.col].length == 0) occupiedCellCount++;
-            });
-
-            gridCells[cellTopLeft.row][cellTopLeft.col].push(node);
-            gridCells[cellTopRight.row][cellTopRight.col].push(node);
-            gridCells[cellBottomLeft.row][cellBottomLeft.col].push(node);
-            gridCells[cellBottomRight.row][cellBottomRight.col].push(node);
-        }
-
-        console.log(occupiedCellCount);
-
-        nodeGridCellOccupation.sort((n) => n[1]);
-        while (gridCellCount - occupiedCellCount < targetNodes.length) {
-            const nodeCell = nodeGridCellOccupation.shift();
-            if (!nodeCell) break;
-
-            const node = nodeCell[0];
-            const topLeft = {
-                x: node.getPosition().x,
-                y: node.getPosition().y,
-            };
-            const topRight = {
-                x: node.getPosition().x + node.size().width,
-                y: node.getPosition().y,
-            };
-            const bottomLeft = {
-                x: node.getPosition().x,
-                y: node.getPosition().y + node.size().height,
-            };
-            const bottomRight = {
-                x: node.getPosition().x + node.size().width,
-                y: node.getPosition().y + node.size().height,
-            };
-
-            const cellTopLeft = {
-                col: clamp(Math.floor(topLeft.x / gridCellWidth), 0, gridColCount - 1),
-                row: clamp(Math.floor(topLeft.y / gridCellHeight), 0, gridRowCount - 1),
-            };
-            const cellTopRight = {
-                col: clamp(Math.floor(topRight.x / gridCellWidth), 0, gridColCount - 1),
-                row: clamp(Math.floor(topRight.y / gridCellHeight), 0, gridRowCount - 1),
-            };
-            const cellBottomLeft = {
-                col: clamp(Math.floor(bottomLeft.x / gridCellWidth), 0, gridColCount - 1),
-                row: clamp(Math.floor(bottomLeft.y / gridCellHeight), 0, gridRowCount - 1),
-            };
-            const cellBottomRight = {
-                col: clamp(Math.floor(bottomRight.x / gridCellWidth), 0, gridColCount - 1),
-                row: clamp(Math.floor(bottomRight.y / gridCellHeight), 0, gridRowCount - 1),
-            };
-
-            const cellTopLeftPos = {
-                x: cellTopLeft.col * gridCellWidth + padding,
-                y: cellTopLeft.row * gridCellHeight + padding,
-            };
-            const cellTopRightPos = {
-                x: cellTopRight.col * gridCellWidth + padding,
-                y: cellTopRight.row * gridCellHeight + padding,
-            };
-            const cellBottomLeftPos = {
-                x: cellBottomLeft.col * gridCellWidth + padding,
-                y: cellBottomLeft.row * gridCellHeight + padding,
-            };
-            const cellBottomRightPos = {
-                x: cellBottomRight.col * gridCellWidth + padding,
-                y: cellBottomRight.row * gridCellHeight + padding,
-            };
-
-            const dist2TopLeft = dist2(topLeft.x, topLeft.y, cellTopLeftPos.x, cellTopLeftPos.y);
-            const dist2TopRight = dist2(topLeft.x, topLeft.y, cellTopRightPos.x, cellTopRightPos.y);
-            const dist2BottomLeft = dist2(topLeft.x, topLeft.y, cellBottomLeftPos.x, cellBottomLeftPos.y);
-            const dist2BottomRight = dist2(topLeft.x, topLeft.y, cellBottomRightPos.x, cellBottomRightPos.y);
-
-            const minDist2 = Math.min(dist2TopLeft, dist2TopRight, dist2BottomLeft, dist2BottomRight);
-
-            if (minDist2 == dist2TopLeft) {
-                const pos = applyRandomOffset(cellTopLeftPos, randomOffset);
-                if (animated) this.animateMove(node, pos.x, pos.y);
-                else node.setPosition(pos.x, pos.y);
-                gridCells[cellTopRight.row][cellTopRight.col].splice(
-                    gridCells[cellTopRight.row][cellTopRight.col].indexOf(node),
-                    1
-                );
-                if (gridCells[cellTopRight.row][cellTopRight.col].length == 0) occupiedCellCount--;
-                gridCells[cellBottomLeft.row][cellBottomLeft.col].splice(
-                    gridCells[cellBottomLeft.row][cellBottomLeft.col].indexOf(node),
-                    1
-                );
-                if (gridCells[cellBottomLeft.row][cellBottomLeft.col].length == 0) occupiedCellCount--;
-                gridCells[cellBottomRight.row][cellBottomRight.col].splice(
-                    gridCells[cellBottomRight.row][cellBottomRight.col].indexOf(node),
-                    1
-                );
-                if (gridCells[cellBottomRight.row][cellBottomRight.col].length == 0) occupiedCellCount--;
-            } else if (minDist2 == dist2TopRight) {
-                const pos = applyRandomOffset(cellTopRightPos, randomOffset);
-                if (animated) this.animateMove(node, pos.x, pos.y);
-                else node.setPosition(pos.x, pos.y);
-                gridCells[cellTopLeft.row][cellTopLeft.col].splice(
-                    gridCells[cellTopLeft.row][cellTopLeft.col].indexOf(node),
-                    1
-                );
-                if (gridCells[cellTopLeft.row][cellTopLeft.col].length == 0) occupiedCellCount--;
-                gridCells[cellBottomLeft.row][cellBottomLeft.col].splice(
-                    gridCells[cellBottomLeft.row][cellBottomLeft.col].indexOf(node),
-                    1
-                );
-                if (gridCells[cellBottomLeft.row][cellBottomLeft.col].length == 0) occupiedCellCount--;
-                gridCells[cellBottomRight.row][cellBottomRight.col].splice(
-                    gridCells[cellBottomRight.row][cellBottomRight.col].indexOf(node),
-                    1
-                );
-                if (gridCells[cellBottomRight.row][cellBottomRight.col].length == 0) occupiedCellCount--;
-            } else if (minDist2 == dist2BottomLeft) {
-                const pos = applyRandomOffset(cellBottomLeftPos, randomOffset);
-                if (animated) this.animateMove(node, pos.x, pos.y);
-                else node.setPosition(pos.x, pos.y);
-                gridCells[cellTopLeft.row][cellTopLeft.col].splice(
-                    gridCells[cellTopLeft.row][cellTopLeft.col].indexOf(node),
-                    1
-                );
-                if (gridCells[cellTopLeft.row][cellTopLeft.col].length == 0) occupiedCellCount--;
-                gridCells[cellTopRight.row][cellTopRight.col].splice(
-                    gridCells[cellTopRight.row][cellTopRight.col].indexOf(node),
-                    1
-                );
-                if (gridCells[cellTopRight.row][cellTopRight.col].length == 0) occupiedCellCount--;
-                gridCells[cellBottomRight.row][cellBottomRight.col].splice(
-                    gridCells[cellBottomRight.row][cellBottomRight.col].indexOf(node),
-                    1
-                );
-                if (gridCells[cellBottomRight.row][cellBottomRight.col].length == 0) occupiedCellCount--;
-            } else {
-                const pos = applyRandomOffset(cellBottomRightPos, randomOffset);
-                if (animated) this.animateMove(node, pos.x, pos.y);
-                else node.setPosition(pos.x, pos.y);
-                gridCells[cellTopLeft.row][cellTopLeft.col].splice(
-                    gridCells[cellTopLeft.row][cellTopLeft.col].indexOf(node),
-                    1
-                );
-                if (gridCells[cellTopLeft.row][cellTopLeft.col].length == 0) occupiedCellCount--;
-                gridCells[cellTopRight.row][cellTopRight.col].splice(
-                    gridCells[cellTopRight.row][cellTopRight.col].indexOf(node),
-                    1
-                );
-                if (gridCells[cellTopRight.row][cellTopRight.col].length == 0) occupiedCellCount--;
-                gridCells[cellBottomLeft.row][cellBottomLeft.col].splice(
-                    gridCells[cellBottomLeft.row][cellBottomLeft.col].indexOf(node),
-                    1
-                );
-                if (gridCells[cellBottomLeft.row][cellBottomLeft.col].length == 0) occupiedCellCount--;
-            }
-        }
-
-        let targetNodeIndex = 0;
-        let nodeExist = true;
-        for (let row = 0; row < gridRowCount; row++) {
-            for (let col = 0; col < gridColCount; col++) {
-                if (gridCells[row][col].length == 0) {
-                    const x =
-                        col * gridCellWidth +
-                        padding +
-                        Math.floor(Math.random() * (randomOffset * 2 + 1)) -
-                        randomOffset;
-                    const y =
-                        row * gridCellHeight +
-                        padding +
-                        Math.floor(Math.random() * (randomOffset * 2 + 1)) -
-                        randomOffset;
-                    if (animated) this.animateMove(targetNodes[targetNodeIndex++], x, y);
-                    else targetNodes[targetNodeIndex++].setPosition(x, y);
-                    if (targetNodeIndex == targetNodes.length) {
-                        nodeExist = false;
-                        break;
-                    }
-                }
-            }
-            if (!nodeExist) break;
-        }
-
-        function dist2(x1: number, y1: number, x2: number, y2: number) {
-            return Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2);
-        }
-
-        function clamp(n: number, minValue: number, maxValue: number) {
-            return Math.max(minValue, Math.min(maxValue, n));
-        }
-
-        function applyRandomOffset(pos: {x: number; y: number}, randomOffset: number) {
-            const x = pos.x + Math.floor(Math.random() * (randomOffset * 2 + 1)) - randomOffset;
-            const y = pos.y + Math.floor(Math.random() * (randomOffset * 2 + 1)) - randomOffset;
-            return {x, y};
-        }
+        // randomOffset = Math.min(randomOffset, padding);
+        //
+        // const gridWidth = this.graph.container.clientWidth;
+        // const gridHeight = this.graph.container.clientHeight;
+        // const gridCellWidth = nodeWidth + 2 * padding;
+        // const gridCellHeight = nodeHeight + 2 * padding;
+        // const gridColCount = Math.floor(gridWidth / gridCellWidth);
+        // const gridRowCount = Math.floor(gridHeight / gridCellHeight);
+        // const gridCellCount = gridColCount * gridRowCount;
+        //
+        // const nodeGridCellOccupation: Array<[Node<Node.Properties>, number]> = [];
+        // const gridCells: Array<Array<Array<Node<Node.Properties>>>> = Array(gridRowCount);
+        // for (let i = 0; i < gridRowCount; i++) {
+        //     gridCells[i] = Array(gridColCount);
+        //
+        //     for (let j = 0; j < gridColCount; j++) {
+        //         gridCells[i][j] = [];
+        //     }
+        // }
+        //
+        // const allNodes = this.graph.getNodes();
+        // const staticNodes = allNodes.filter((node) => !targetNodes.includes(node));
+        //
+        // let occupiedCellCount = 0;
+        // for (let node of staticNodes) {
+        //     const topLeft = {
+        //         x: node.getPosition().x,
+        //         y: node.getPosition().y,
+        //     };
+        //     const topRight = {
+        //         x: node.getPosition().x + node.size().width,
+        //         y: node.getPosition().y,
+        //     };
+        //     const bottomLeft = {
+        //         x: node.getPosition().x,
+        //         y: node.getPosition().y + node.size().height,
+        //     };
+        //     const bottomRight = {
+        //         x: node.getPosition().x + node.size().width,
+        //         y: node.getPosition().y + node.size().height,
+        //     };
+        //
+        //     const cellTopLeft = {
+        //         col: clamp(Math.floor(topLeft.x / gridCellWidth), 0, gridColCount - 1),
+        //         row: clamp(Math.floor(topLeft.y / gridCellHeight), 0, gridRowCount - 1),
+        //     };
+        //     const cellTopRight = {
+        //         col: clamp(Math.floor(topRight.x / gridCellWidth), 0, gridColCount - 1),
+        //         row: clamp(Math.floor(topRight.y / gridCellHeight), 0, gridRowCount - 1),
+        //     };
+        //     const cellBottomLeft = {
+        //         col: clamp(Math.floor(bottomLeft.x / gridCellWidth), 0, gridColCount - 1),
+        //         row: clamp(Math.floor(bottomLeft.y / gridCellHeight), 0, gridRowCount - 1),
+        //     };
+        //     const cellBottomRight = {
+        //         col: clamp(Math.floor(bottomRight.x / gridCellWidth), 0, gridColCount - 1),
+        //         row: clamp(Math.floor(bottomRight.y / gridCellHeight), 0, gridRowCount - 1),
+        //     };
+        //
+        //     const uniqueCells: {row: number; col: number}[] = [];
+        //     [cellTopLeft, cellTopRight, cellBottomLeft, cellBottomRight].forEach((cell) => {
+        //         if (!uniqueCells.find((c) => cell.col == c.col && cell.row == c.row)) {
+        //             uniqueCells.push(cell);
+        //         }
+        //     });
+        //
+        //     nodeGridCellOccupation.push([node, uniqueCells.length]);
+        //     uniqueCells.forEach((uc) => {
+        //         if (gridCells[uc.row][uc.col].length == 0) occupiedCellCount++;
+        //     });
+        //
+        //     gridCells[cellTopLeft.row][cellTopLeft.col].push(node);
+        //     gridCells[cellTopRight.row][cellTopRight.col].push(node);
+        //     gridCells[cellBottomLeft.row][cellBottomLeft.col].push(node);
+        //     gridCells[cellBottomRight.row][cellBottomRight.col].push(node);
+        // }
+        //
+        // console.log(occupiedCellCount);
+        //
+        // nodeGridCellOccupation.sort((n) => n[1]);
+        // while (gridCellCount - occupiedCellCount < targetNodes.length) {
+        //     const nodeCell = nodeGridCellOccupation.shift();
+        //     if (!nodeCell) break;
+        //
+        //     const node = nodeCell[0];
+        //     const topLeft = {
+        //         x: node.getPosition().x,
+        //         y: node.getPosition().y,
+        //     };
+        //     const topRight = {
+        //         x: node.getPosition().x + node.size().width,
+        //         y: node.getPosition().y,
+        //     };
+        //     const bottomLeft = {
+        //         x: node.getPosition().x,
+        //         y: node.getPosition().y + node.size().height,
+        //     };
+        //     const bottomRight = {
+        //         x: node.getPosition().x + node.size().width,
+        //         y: node.getPosition().y + node.size().height,
+        //     };
+        //
+        //     const cellTopLeft = {
+        //         col: clamp(Math.floor(topLeft.x / gridCellWidth), 0, gridColCount - 1),
+        //         row: clamp(Math.floor(topLeft.y / gridCellHeight), 0, gridRowCount - 1),
+        //     };
+        //     const cellTopRight = {
+        //         col: clamp(Math.floor(topRight.x / gridCellWidth), 0, gridColCount - 1),
+        //         row: clamp(Math.floor(topRight.y / gridCellHeight), 0, gridRowCount - 1),
+        //     };
+        //     const cellBottomLeft = {
+        //         col: clamp(Math.floor(bottomLeft.x / gridCellWidth), 0, gridColCount - 1),
+        //         row: clamp(Math.floor(bottomLeft.y / gridCellHeight), 0, gridRowCount - 1),
+        //     };
+        //     const cellBottomRight = {
+        //         col: clamp(Math.floor(bottomRight.x / gridCellWidth), 0, gridColCount - 1),
+        //         row: clamp(Math.floor(bottomRight.y / gridCellHeight), 0, gridRowCount - 1),
+        //     };
+        //
+        //     const cellTopLeftPos = {
+        //         x: cellTopLeft.col * gridCellWidth + padding,
+        //         y: cellTopLeft.row * gridCellHeight + padding,
+        //     };
+        //     const cellTopRightPos = {
+        //         x: cellTopRight.col * gridCellWidth + padding,
+        //         y: cellTopRight.row * gridCellHeight + padding,
+        //     };
+        //     const cellBottomLeftPos = {
+        //         x: cellBottomLeft.col * gridCellWidth + padding,
+        //         y: cellBottomLeft.row * gridCellHeight + padding,
+        //     };
+        //     const cellBottomRightPos = {
+        //         x: cellBottomRight.col * gridCellWidth + padding,
+        //         y: cellBottomRight.row * gridCellHeight + padding,
+        //     };
+        //
+        //     const dist2TopLeft = dist2(topLeft.x, topLeft.y, cellTopLeftPos.x, cellTopLeftPos.y);
+        //     const dist2TopRight = dist2(topLeft.x, topLeft.y, cellTopRightPos.x, cellTopRightPos.y);
+        //     const dist2BottomLeft = dist2(topLeft.x, topLeft.y, cellBottomLeftPos.x, cellBottomLeftPos.y);
+        //     const dist2BottomRight = dist2(topLeft.x, topLeft.y, cellBottomRightPos.x, cellBottomRightPos.y);
+        //
+        //     const minDist2 = Math.min(dist2TopLeft, dist2TopRight, dist2BottomLeft, dist2BottomRight);
+        //
+        //     if (minDist2 == dist2TopLeft) {
+        //         const pos = applyRandomOffset(cellTopLeftPos, randomOffset);
+        //         if (animated) this.animateMove(node, pos.x, pos.y);
+        //         else node.setPosition(pos.x, pos.y);
+        //         gridCells[cellTopRight.row][cellTopRight.col].splice(
+        //             gridCells[cellTopRight.row][cellTopRight.col].indexOf(node),
+        //             1
+        //         );
+        //         if (gridCells[cellTopRight.row][cellTopRight.col].length == 0) occupiedCellCount--;
+        //         gridCells[cellBottomLeft.row][cellBottomLeft.col].splice(
+        //             gridCells[cellBottomLeft.row][cellBottomLeft.col].indexOf(node),
+        //             1
+        //         );
+        //         if (gridCells[cellBottomLeft.row][cellBottomLeft.col].length == 0) occupiedCellCount--;
+        //         gridCells[cellBottomRight.row][cellBottomRight.col].splice(
+        //             gridCells[cellBottomRight.row][cellBottomRight.col].indexOf(node),
+        //             1
+        //         );
+        //         if (gridCells[cellBottomRight.row][cellBottomRight.col].length == 0) occupiedCellCount--;
+        //     } else if (minDist2 == dist2TopRight) {
+        //         const pos = applyRandomOffset(cellTopRightPos, randomOffset);
+        //         if (animated) this.animateMove(node, pos.x, pos.y);
+        //         else node.setPosition(pos.x, pos.y);
+        //         gridCells[cellTopLeft.row][cellTopLeft.col].splice(
+        //             gridCells[cellTopLeft.row][cellTopLeft.col].indexOf(node),
+        //             1
+        //         );
+        //         if (gridCells[cellTopLeft.row][cellTopLeft.col].length == 0) occupiedCellCount--;
+        //         gridCells[cellBottomLeft.row][cellBottomLeft.col].splice(
+        //             gridCells[cellBottomLeft.row][cellBottomLeft.col].indexOf(node),
+        //             1
+        //         );
+        //         if (gridCells[cellBottomLeft.row][cellBottomLeft.col].length == 0) occupiedCellCount--;
+        //         gridCells[cellBottomRight.row][cellBottomRight.col].splice(
+        //             gridCells[cellBottomRight.row][cellBottomRight.col].indexOf(node),
+        //             1
+        //         );
+        //         if (gridCells[cellBottomRight.row][cellBottomRight.col].length == 0) occupiedCellCount--;
+        //     } else if (minDist2 == dist2BottomLeft) {
+        //         const pos = applyRandomOffset(cellBottomLeftPos, randomOffset);
+        //         if (animated) this.animateMove(node, pos.x, pos.y);
+        //         else node.setPosition(pos.x, pos.y);
+        //         gridCells[cellTopLeft.row][cellTopLeft.col].splice(
+        //             gridCells[cellTopLeft.row][cellTopLeft.col].indexOf(node),
+        //             1
+        //         );
+        //         if (gridCells[cellTopLeft.row][cellTopLeft.col].length == 0) occupiedCellCount--;
+        //         gridCells[cellTopRight.row][cellTopRight.col].splice(
+        //             gridCells[cellTopRight.row][cellTopRight.col].indexOf(node),
+        //             1
+        //         );
+        //         if (gridCells[cellTopRight.row][cellTopRight.col].length == 0) occupiedCellCount--;
+        //         gridCells[cellBottomRight.row][cellBottomRight.col].splice(
+        //             gridCells[cellBottomRight.row][cellBottomRight.col].indexOf(node),
+        //             1
+        //         );
+        //         if (gridCells[cellBottomRight.row][cellBottomRight.col].length == 0) occupiedCellCount--;
+        //     } else {
+        //         const pos = applyRandomOffset(cellBottomRightPos, randomOffset);
+        //         if (animated) this.animateMove(node, pos.x, pos.y);
+        //         else node.setPosition(pos.x, pos.y);
+        //         gridCells[cellTopLeft.row][cellTopLeft.col].splice(
+        //             gridCells[cellTopLeft.row][cellTopLeft.col].indexOf(node),
+        //             1
+        //         );
+        //         if (gridCells[cellTopLeft.row][cellTopLeft.col].length == 0) occupiedCellCount--;
+        //         gridCells[cellTopRight.row][cellTopRight.col].splice(
+        //             gridCells[cellTopRight.row][cellTopRight.col].indexOf(node),
+        //             1
+        //         );
+        //         if (gridCells[cellTopRight.row][cellTopRight.col].length == 0) occupiedCellCount--;
+        //         gridCells[cellBottomLeft.row][cellBottomLeft.col].splice(
+        //             gridCells[cellBottomLeft.row][cellBottomLeft.col].indexOf(node),
+        //             1
+        //         );
+        //         if (gridCells[cellBottomLeft.row][cellBottomLeft.col].length == 0) occupiedCellCount--;
+        //     }
+        // }
+        //
+        // let targetNodeIndex = 0;
+        // let nodeExist = true;
+        // for (let row = 0; row < gridRowCount; row++) {
+        //     for (let col = 0; col < gridColCount; col++) {
+        //         if (gridCells[row][col].length == 0) {
+        //             const x =
+        //                 col * gridCellWidth +
+        //                 padding +
+        //                 Math.floor(Math.random() * (randomOffset * 2 + 1)) -
+        //                 randomOffset;
+        //             const y =
+        //                 row * gridCellHeight +
+        //                 padding +
+        //                 Math.floor(Math.random() * (randomOffset * 2 + 1)) -
+        //                 randomOffset;
+        //             if (animated) this.animateMove(targetNodes[targetNodeIndex++], x, y);
+        //             else targetNodes[targetNodeIndex++].setPosition(x, y);
+        //             if (targetNodeIndex == targetNodes.length) {
+        //                 nodeExist = false;
+        //                 break;
+        //             }
+        //         }
+        //     }
+        //     if (!nodeExist) break;
+        // }
+        //
+        // function dist2(x1: number, y1: number, x2: number, y2: number) {
+        //     return Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2);
+        // }
+        //
+        // function clamp(n: number, minValue: number, maxValue: number) {
+        //     return Math.max(minValue, Math.min(maxValue, n));
+        // }
+        //
+        // function applyRandomOffset(pos: {x: number; y: number}, randomOffset: number) {
+        //     const x = pos.x + Math.floor(Math.random() * (randomOffset * 2 + 1)) - randomOffset;
+        //     const y = pos.y + Math.floor(Math.random() * (randomOffset * 2 + 1)) - randomOffset;
+        //     return {x, y};
+        // }
     }
 
     public getNode(id: string) {

@@ -94,7 +94,7 @@ export class AppComponent implements AfterViewInit {
             },
         });
         const targetNodes: Node<Node.Properties>[] = [];
-        for (let i = 0; i < 7; i++) {
+        for (let i = 0; i < 12; i++) {
             targetNodes.push(
                 this.customGraphService.addCustomNode({
                     shape: 'custom-angular-component-node',
